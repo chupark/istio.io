@@ -15,7 +15,7 @@ plane** 으로 분리되어 있습니다..
 * **data plane** 은 사이드카로 배치된 지능형 
 ([Envoy](https://www.envoyproxy.io/)) 프록시의 집합으로 구성됩니다. 
 이러한 프록시들은 마이크로서비스 사이의 모든 네트워크 통신을 조정하고 제어합니다. 또한 
-모든 mesh 트래픽에 대한 telemetry 를 수집하고 보고합니다..
+모든 mesh 트래픽에 대한 telemetry 를 수집하고 보고합니다.
 
 * **control plane** 은 트래픽을 라우팅하도록 프록시를 관리하고 구성합니다..
 
@@ -50,52 +50,40 @@ Envoy프록시는 서비스의 사이드카로 배치되며, Envoy의 다양한 
 * Fault injection
 * Rich metrics
 
-This sidecar deployment allows Istio to enforce policy decisions and extract
-rich telemetry which can be sent to monitoring systems to provide information
-about the behavior of the entire mesh.
+사이드카로 배치함으로써 Istio가 정책을 설정하고 모니터링 시스템으로 telemetry를 전송합니다. 
+모니터링 시스템은 전달받은 풍부한 메트릭으로 mesh의 행동 정보를 감시합니다.
 
-The sidecar proxy model also allows you to add Istio capabilities to an
-existing deployment without requiring you to rearchitect or rewrite code.
+또한 Istio는 사이드카로 작동하므로 코드를 재설계하거나 다시 작성할 필요 없이 Istio기능을 바로 추가할 수 있습니다..
 
-Some of the Istio features and tasks enabled by Envoy proxies include:
+Envoy 프록시에 의해 활성화되는 Istio기능 예시 :
 
-* Traffic control features: enforce fine-grained traffic control with rich
-  routing rules for HTTP, gRPC, WebSocket, and TCP traffic.
+* 트레픽 제어 기능: HTTP, gRPC, WebSocket, TCP traffic에 대한 다양한 라우팅 규칙으로 세분화된 트래픽 제어 수행.
 
-* Network resiliency features: setup retries, failovers, circuit breakers, and
+* 네트워크 복원 기능: setup retries, failovers, circuit breakers, and
   fault injection.
 
-* Security and authentication features: enforce security policies and enforce
-  access control and rate limiting defined through the configuration API.
+* 보안 및 인증 기능: API를 사용하여 정의된 보안정책, 접근 제어 정책, 속도 제한 정책을 적용 합니다.
 
-* Pluggable extensions model based on WebAssembly that allows for custom policy
-  enforcement and telemetry generation for mesh traffic.
+* 메쉬 트래픽에 대한 사용자 지정 정책 시행 및 원격 측정 생성을 허용하는 WebAssembly 기반 플러그 가능 확장 모델.
 
 ### Istiod
 
-Istiod provides service discovery, configuration and certificate management.
+Istiod는 service discovery 설정과 인증서 관리 기능을 제공합니다.
 
-Istiod converts high level routing rules that control traffic behavior into
-Envoy-specific configurations, and propagates them to the sidecars at runtime.
-Pilot abstracts platform-specific service discovery mechanisms and synthesizes
-them into a standard format that any sidecar conforming with the
-[Envoy API](https://www.envoyproxy.io/docs/envoy/latest/api/api) can consume.
+Istiod 높은 수준의 라우팅 규칙은 Envoy-specific 구성으로 변환하고 런타임에 사이드카로 전파합니다..
+Pilot은 플랫폼 별 서비스 검색 메커니즘을 추상화 하고 [Envoy API](https://www.envoyproxy.io/docs/envoy/latest/api/api)를 준수하는 
+모든 사이드카가 사용할 수 있는 표준 형식으로 합성합니다.
 
-Istio can support discovery for multiple environments such as Kubernetes,
-Consul, or VMs.
+Istio 는Kubernetes, Consul, VM과 같은 여러 환경에 대하여 discovery를 지원합니다.
 
-You can use Istio's
+Istio의 
 [Traffic Management API](/docs/concepts/traffic-management/#introducing-istio-traffic-management)
-to instruct Istiod to refine the Envoy configuration to exercise more granular control
-over the traffic in your service mesh.
+를 사용하여 Istod에서 Envoy 구성을 구체화하여 service mesh의 트래픽을 세밀하게 제어하도록 지시할 수 있습니다.  
 
-Istiod [security](/docs/concepts/security/) enables strong service-to-service and
-end-user authentication with built-in identity and credential management. You
-can use Istio to upgrade unencrypted traffic in the service mesh. Using
-Istio, operators can enforce policies based on service identity rather than
-on relatively unstable layer 3 or layer 4 network identifiers.
-Additionally, you can use [Istio's authorization feature](/docs/concepts/security/#authorization)
-to control who can access your services.
 
-Istiod acts as a Certificate Authority (CA) and generates certificates to allow
-secure mTLS communication in the data plane.
+Istiod [security](/docs/concepts/security/)는 내장 된 ID 및 자격 증명 관리를 통해 강력한 서비스 대 서비스 및 최종 사용자 인증을 지원합니다. 
+Istio를 사용하여 서비스 메시에서 암호화되지 않은 트래픽을 업그레이드 할 수 있습니다. 
+운영자는 Istio를 사용하여 상대적으로 불안정한 계층 3 또는 계층 4 네트워크 식별자가 아닌 서비스 ID를 기반으로 정책을 시행 할 수 있습니다. 
+릴리스 0.5부터 Istio의 [Istio's authorization feature](/docs/concepts/security/#authorization) 기능을 사용하여 서비스에 액세스 할 수있는 사용자를 제어 할 수 있습니다.
+
+Istiod는 인증 기관 (CA)의 역할을하며 data plane에서 안전한 mTLS 통신을 허용하는 인증서를 생성합니다.
