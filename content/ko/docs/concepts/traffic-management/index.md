@@ -15,58 +15,38 @@ owner: istio/wg-networking-maintainers
 test: no
 ---
 
-Istio’s traffic routing rules let you easily control the flow
-of traffic and API calls between services. Istio simplifies configuration of
-service-level properties like circuit breakers, timeouts, and retries, and makes
-it easy to set up important tasks like A/B testing, canary rollouts, and staged
-rollouts with percentage-based traffic splits. It also provides out-of-box
-failure recovery features that help make your application
-more robust against failures of dependent services or the network.
+Istio의 트래픽 라우팅 규칙을 사용하면 서비스 간의 트래픽 흐름과 API 호출을 쉽게 제어 할 수 있습니다.
+Istio는 circuit breakers, timeouts, retries와 같은 서비스 수준 속성의 구성을 단순화하고 백분율 기반 트래픽 분할을 사용하여 A/B 테스트, canary/staged 롤아웃과 같은 중요한 작업을 쉽게 설정할 수 있도록 합니다. 
+또한 종속서비스 혹은 네트워크 장애에 대해 애플리케이션을 더욱 강력하게 만드는데 도움이 되는 out-of-box fauilure recovery 기능을 제공합니다.
 
-Istio’s traffic management model relies on the {{< gloss >}}Envoy{{</ gloss >}}
-proxies that are deployed along with your services. All traffic that your mesh
-services send and receive ({{< gloss >}}data plane{{</ gloss >}} traffic) is proxied through Envoy, making
-it easy to direct and control traffic around your mesh without making any
-changes to your services.
+Istio의 트래픽 관리 모델은 서비스와 함께 배포되는 {{< gloss >}}Envoy{{</ gloss >}} 프록시에 의존합니다. 
+메시 서비스가 주고받는 모든 트래픽은({{< gloss >}}data plane{{</ gloss >}} traffic) Envoy를 통해 프록시되므로 서비스 코드를 변경하지 않고도 메시 주변의 트래픽을 쉽게 전달하고 제어할 수 있습니다.
 
-If you’re interested in the details of how the features described in this guide
-work, you can find out more about Istio’s traffic management implementation in the
-[architecture overview](/docs/ops/deployment/architecture/). The rest of
-this guide introduces Istio’s traffic management features.
+이 가이드에 설명된 기능으 ㅣ작동 방식에 대한 자세한 내용에 관심이 있는 경우 [아키텍처 개요](/docs/ops/deployment/architecture/)에서 Istio의 트래픽 관리 구현에 대해 자세히 알아볼 수 있습니다. 
+이 가이드의 나머지 부분에서는 Istio의 트래픽 관리 기능을 소개합니다.
 
 ## Introducing Istio traffic management
 
-In order to direct traffic within your mesh, Istio needs to know where all your
-endpoints are, and which services they belong to. To populate its own
-{{< gloss >}}service registry{{</ gloss >}}, Istio connects to a service
-discovery system. For example, if you've installed Istio on a Kubernetes cluster,
-then Istio automatically detects the services and endpoints in that cluster.
+메시 내에서 트래픽을 전달하기 위해 Istio는 모든 엔드 포인트가 어디에 있고 어떤 서비스에 속하는지 알아야 합니다. 
+{{< gloss >}}service registry{{</ gloss >}}를 위해 Istio는 서비스 검색 시스템에 연결됩니다.
+예를 들어 Istio를 Kubernetes 클러스터에 설치했다면, Istio는 자동으로 해당 클러스터의 Services와 Endpoints를 감지합니다.
 
-Using this service registry, the Envoy proxies can then direct traffic to the
-relevant services. Most microservice-based applications have multiple instances
-of each service workload to handle service traffic, sometimes referred to as a
-load balancing pool. By default, the Envoy proxies distribute traffic across
-each service’s load balancing pool using a round-robin model, where requests are
-sent to each pool member in turn, returning to the top of the pool once each
-service instance has received a request.
+이 Service registry를 사용하여 Envoy 프록시는 트래픽을 관련 서비스로 보낼 수 있습니다.
+대부분 MSA기반 애플리케이션은 서비스 트래픽을 처리하기 위한 여러 인스턴스가 있으며, 이를 Load balancing pool이라고도 합니다.
+기본적으로 Envoy 프록시는 라운드 로빈 모델을 사용하여 각 서비스의 Load balancing pool에 트래픽을 분산합니다.
+여기서 요청은 각 풀의 구성 서비스에 차례대로 전송되고 각 서비스 인스턴스가 요청을 수신하면 풀의 맨 처음 서비스로 돌아갑니다.
 
-While Istio's basic service discovery and load balancing gives you a working
-service mesh, it’s far from all that Istio can do. In many cases you might want
-more fine-grained control over what happens to your mesh traffic.
-You might want to direct a particular percentage of traffic to a new version of
-a service as part of A/B testing, or apply a different load balancing policy to
-traffic for a particular subset of service instances. You might also want to
-apply special rules to traffic coming into or out of your mesh, or add an
-external dependency of your mesh to the service registry. You can do all this
-and more by adding your own traffic configuration to Istio using Istio’s traffic
-management API.
+Istio가 기본적인 Service discovery와 Load balancing을 제공하지만 이는 Istio의 극히 일부분 입니다.
+대부분 관리자는 메시 트래픽에서 어떤 일이 일어나는지에 대한 좀 더 세밀한 제어를 원합니다.
+A / B 테스트를 위해 특정 비율의 트래픽을 새 버전의 서비스로 보내거나, 특정 서비스 인스턴스 하위 집합에 대한 트래픽에 다른 부하 분산 정책을 적용할 수 있습니다.
+메시로 들어오거나 나가는 트래픽에 특수 규칙을 적용하거나 메시의 외부 종속성을 서비스 레지스트리에 추가 할 수도 있습니다.
+Istio의 Traffic management API를 사용하여 위에서 언급한 내용을 포함한 아주 많은 작업을 수행할 수 있습니다. 
 
-Like other Istio configuration, the API is specified using Kubernetes custom
-resource definitions ({{< gloss >}}CRDs{{</ gloss >}}), which you can configure
-using YAML, as you’ll see in the examples.
+다른 Istio 구성과 마찬가지로 예시에서 볼 수 있듯 Kubernetes Custom Resource Definitions ({{< gloss >}}CRDs{{</ gloss >}}) 
+YAML 정의를 사용하여 API를 사용합니다. 
 
-The rest of this guide examines each of the traffic management API resources
-and what you can do with them. These resources are:
+이 가이드의 나머지 부분에서는 각 Traffic management API 리소스를 사용하여 어떤 일을 수행할 수 있는지 보여줍니다. 
+Traffic management API 리소스는 다음과 같습니다. :
 
 - [Virtual services](#virtual-services)
 - [Destination rules](#destination-rules)
@@ -74,21 +54,14 @@ and what you can do with them. These resources are:
 - [Service entries](#service-entries)
 - [Sidecars](#sidecars)
 
-This guide also gives an overview of some of the
-[network resilience and testing features](#network-resilience-and-testing) that
-are built in to the API resources.
+또한, 이 가이드는 API 리소스에 내장된 일부 [네트워크 복원력 및 테스트 기능](#network-resilience-and-testing)에 대한 개요를 제공합니다.
 
 ## Virtual services {#virtual-services}
 
-[Virtual services](/docs/reference/config/networking/virtual-service/#VirtualService),
-along with [destination rules](#destination-rules), are the key building blocks of Istio’s traffic
-routing functionality. A virtual service lets you configure how requests are
-routed to a service within an Istio service mesh, building on the basic
-connectivity and discovery provided by Istio and your platform. Each virtual
-service consists of a set of routing rules that are evaluated in order, letting
-Istio match each given request to the virtual service to a specific real
-destination within the mesh. Your mesh can require multiple virtual services or
-none depending on your use case.
+[Virtual services](/docs/reference/config/networking/virtual-service/#VirtualService)는 [destination rules](#destination-rules) 과 함께 서비스되는 Istio 트래픽 라우팅 기능의 핵심 구성 요소입니다.
+Virtual service를 사용하면 Istio 및 플랫폼에서 제공하는 기본 Connectivity와 Discovery를 기반으로 Istio 서비스 메시 내에서 요청이 서비스로 라우팅되는 방식을 구성할 수 있습니다.
+각 Virtual service는 순서대로 평가되는 라우팅 규칙 세트로 구성되어 Istio가 Virtual Service에 대한 각 요청을 메시 내의 특정 대상과 일치시킬 수 있도록 합니다.
+구성하는 메시에 따라서 여러 Virtual service를 필요로 하거나 아무것도 요구하지 않을 수 있습니다.
 
 ### Why use virtual services? {#why-use-virtual-services}
 
