@@ -11,19 +11,14 @@ owner: istio/wg-environments-maintainers
 test: yes
 ---
 
-This guide lets you quickly evaluate Istio. If you are already familiar with
-Istio or interested in installing other configuration profiles or
-advanced [deployment models](/docs/ops/deployment/deployment-models/), see
-[Customizable Install with `istioctl`](/docs/setup/install/istioctl/)
-instead.
+이 가이드는를 통해 Istio를 빠르게 사용해보고 평가할 수 있습니다. 이미 Istio에 익숙하거나 다른 구성 프로필 혹은 다른
+[배포 모델](/docs/ops/deployment/deployment-models/)에 관심이 있는 경우 대신 [Customizable Install with `istioctl`](/docs/setup/install/istioctl/)
+를 참조하여 설치하세요.
 
-These steps require you to have a {{< gloss >}}cluster{{< /gloss >}} running a
-compatible version of Kubernetes. You can use any supported platform, for
-example [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) or
-others specified by the
-[platform-specific setup instructions](/docs/setup/platform-setup/).
+이 단계를 수행하려면 호환되는 Kubernetes 버전을 실행하는 {{< gloss >}}cluster{{< /gloss >}} 가 필요합니다.
+[Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)를 사용하거나 [클라우드사업자](/docs/setup/platform-setup/)의 Kubernetes 서비스를 사용할 수 있습니다..
 
-Follow these steps to get started with Istio:
+가이드의 순서는 아래와 같습니다. :
 
 1. [Download and install Istio](#download)
 1. [Deploy the sample application](#bookinfo)
@@ -32,35 +27,31 @@ Follow these steps to get started with Istio:
 
 ## Download Istio {#download}
 
-1.  Go to the [Istio release]({{< istio_release_url >}}) page to
-    download the installation file for your OS, or download and
-    extract the latest release automatically (Linux or macOS):
+1.  [Istio release]({{< istio_release_url >}})페이지에서 OS에 맞는 파일을 다운로드 받거나 아래 명령으로 최신 버전을 다운받을 수 있습니다. (Linux or macOS):
 
     {{< text bash >}}
     $ curl -L https://istio.io/downloadIstio | sh -
     {{< /text >}}
 
     {{< tip >}}
-    The command above downloads the latest release (numerically) of Istio.
-    To download a specific version, you can add a variable on the command line.
-    For example to download Istio 1.4.3, you would run
+    위의 명령은 Istio의 최신 릴리스를(숫자 기준) 다운로드 합니다.
+    특정 버전을 다운로드 하려면 CLI에서 변수를 추가 할 수 있습니다.
+    예를 들어 Istio 1.4.3 버전을 다운받고 싶다면 다음을 실행합니다. 
       `curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.4.3 sh -`
     {{< /tip >}}
 
-1.  Move to the Istio package directory. For example, if the package is
-    `istio-{{< istio_full_version >}}`:
+1.  Istio 패키지 디렉토리로 이동합니다. 이 예시의 경우 `istio-{{< istio_full_version >}}` 입니다. :
 
     {{< text syntax=bash snip_id=none >}}
     $ cd istio-{{< istio_full_version >}}
     {{< /text >}}
 
-    The installation directory contains:
+    디렉토리에는 아래 항목을 포함하고 있습니다. :
 
-    - Sample applications in `samples/`
-    - The [`istioctl`](/docs/reference/commands/istioctl) client binary in the
-      `bin/` directory.
+    - 예제 애플리케이션은 `samples/` 디렉토리에 있습니다.
+    - [`istioctl`](/docs/reference/commands/istioctl) 클라이언트 바이너리는 `bin/` 디렉토리에 있습니다.
 
-1.  Add the `istioctl` client to your path (Linux or macOS):
+1.  `istioctl` 클라이언트 환경변수를 사용자 환경에 추가합니다. (Linux or macOS):
 
     {{< text bash >}}
     $ export PATH=$PWD/bin:$PATH
@@ -68,10 +59,8 @@ Follow these steps to get started with Istio:
 
 ## Install Istio {#install}
 
-1.  For this installation, we use the `demo`
-    [configuration profile](/docs/setup/additional-setup/config-profiles/). It's
-    selected to have a good set of defaults for testing, but there are other
-    profiles for production or performance testing.
+1.  이 예제에선 `demo` [설정 프로파일](/docs/setup/additional-setup/config-profiles/)을 사용합니다.
+    테스트하기 좋은 기본값을 선택하고 있지만, 프러덕션 또는 성능 테스트를 위한 다른 프로필도 준비되어 있습니다.
 
     {{< text bash >}}
     $ istioctl install --set profile=demo
@@ -82,8 +71,7 @@ Follow these steps to get started with Istio:
     ✔ Installation complete
     {{< /text >}}
 
-1.  Add a namespace label to instruct Istio to automatically inject Envoy
-    sidecar proxies when you deploy your application later:
+1.  namespace label을 추가하여, 애플리케이션을 배포 할 때 Istio가 Envoy 사이드카 프록시를 자동으로 배포되도록 합니다. :
 
     {{< text bash >}}
     $ kubectl label namespace default istio-injection=enabled
@@ -92,7 +80,7 @@ Follow these steps to get started with Istio:
 
 ## Deploy the sample application {#bookinfo}
 
-1.  Deploy the [`Bookinfo` sample application](/docs/examples/bookinfo/):
+1.  [`Bookinfo` 얘제 애플리케이션](/docs/examples/bookinfo/)을 배포합니다. :
 
     {{< text bash >}}
     $ kubectl apply -f @samples/bookinfo/platform/kube/bookinfo.yaml@
@@ -112,8 +100,7 @@ Follow these steps to get started with Istio:
     deployment.apps/productpage-v1 created
     {{< /text >}}
 
-1.  The application will start. As each pod becomes ready, the Istio sidecar will
-    deploy along with it.
+1.  애플리케이션이 시작되고, 각 Pod가 ready 상태가 되면 Istio사이드카가 배포됩니다.
 
     {{< text bash >}}
     $ kubectl get services
@@ -139,14 +126,11 @@ Follow these steps to get started with Istio:
     {{< /text >}}
 
     {{< tip >}}
-    Re-run the previous command and wait until all pods report READY 2 / 2 and
-    STATUS Running before you go to the next step. This might take a few minutes
-    depending on your platform.
+    다음 단계로 이동하기 전에 이전 명령을 다시 실행하여 모든 Pod의 STATUS가 READY 2 / 2 그리고
+     Running 인지 확인하세요. 이 작업은 플랫폼에 따라 몇 분 정도 걸립니다.
     {{< /tip >}}
 
-1.  Verify everything is working correctly up to this point. Run this command to
-    see if the app is running inside the cluster and serving HTML pages by
-    checking for the page title in the response:
+1.  이 시점에서 모든 작업이 잘 진행됐는지 검증 합니다. 아래 명령을 실행하여 page title HTML태그를 반환하는지 확인합니다. :
 
     {{< text bash >}}
     $ kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -s productpage:9080/productpage | grep -o "<title>.*</title>"
@@ -155,12 +139,10 @@ Follow these steps to get started with Istio:
 
 ## Open the application to outside traffic {#ip}
 
-The Bookinfo application is deployed but not accessible from the outside. To make it accessible,
-you need to create an
-[Istio Ingress Gateway](/docs/concepts/traffic-management/#gateways), which maps a path to a
-route at the edge of your mesh.
+Bookinfo 애플리케이션이 배포됐지만 아직 외부에서 접속이 가능하지 않습니다. 외부 접속을 허용하기 위해 
+mesh의 edge에 라우팅 경로를 매핑시킬 [Istio Ingress Gateway](/docs/concepts/traffic-management/#gateways)를 배포합니다.
 
-1.  Associate this application with the Istio gateway:
+1.  Istio gateway 를 배포하기 위해 아래 명령을 실행합니다. :
 
     {{< text bash >}}
     $ kubectl apply -f @samples/bookinfo/networking/bookinfo-gateway.yaml@
@@ -168,7 +150,7 @@ route at the edge of your mesh.
     virtualservice.networking.istio.io/bookinfo created
     {{< /text >}}
 
-1.  Ensure that there are no issues with the configuration:
+1.  설정에 이상이 없는지 확인합니다. :
 
     {{< text bash >}}
     $ istioctl analyze
@@ -177,22 +159,21 @@ route at the edge of your mesh.
 
 ### Determining the ingress IP and ports
 
-Follow these instructions to set the `INGRESS_HOST` and `INGRESS_PORT` variables
-for accessing the gateway. Use the tabs to choose the instructions for your
-chosen platform:
+다음 순서를 따라서 gateway를 위한 `INGRESS_HOST` 그리고 `INGRESS_PORT` 변수를 설정합니다. 
+아래 탭을 선택하여 배포된 플랫폼에 맞는 순서를 진행합니다. :
 
 {{< tabset category-name="gateway-ip" >}}
 
 {{< tab name="Minikube" category-value="external-lb" >}}
 
-Set the ingress ports:
+Ingress 포트를 설정합니다. :
 
 {{< text bash >}}
 $ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
 $ export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
 {{< /text >}}
 
-Ensure a port was successfully assigned to each environment variable:
+포트 번호가 환경변수에 매핑됐는지 확인합니다. :
 
 {{< text bash >}}
 $ echo "$INGRESS_PORT"
@@ -204,21 +185,20 @@ $ echo "$SECURE_INGRESS_PORT"
 31632
 {{< /text >}}
 
-Set the ingress IP:
+Ingress IP를 설정합니다.:
 
 {{< text bash >}}
 $ export INGRESS_HOST=$(minikube ip)
 {{< /text >}}
 
-Ensure an IP address was successfully assigned to the environment variable:
+IP 주소가 환경변수에 매핑됐는지 확인합니다. :
 
 {{< text bash >}}
 $ echo "$INGRESS_HOST"
 192.168.4.102
 {{< /text >}}
 
-Run this command in a new terminal window to start a Minikube tunnel that
-sends traffic to your Istio Ingress Gateway:
+새 터미널 창에서 이 명령을 실행하여 Istio Ingress Gateway로 트래픽을 보내는 Minikube 터널을 시작합니다. :
 
 {{< text bash >}}
 $ minikube tunnel
@@ -228,7 +208,7 @@ $ minikube tunnel
 
 {{< tab name="Other platforms" category-value="node-port" >}}
 
-Execute the following command to determine if your Kubernetes cluster is running in an environment that supports external load balancers:
+배포된 Kubernetes cluster 환경이 External load balancers를 지원하면 아래 명령을 실행합니다. :
 
 {{< text bash >}}
 $ kubectl get svc istio-ingressgateway -n istio-system
@@ -236,15 +216,15 @@ NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)  
 istio-ingressgateway   LoadBalancer   172.21.109.129   130.211.10.121  80:31380/TCP,443:31390/TCP,31400:31400/TCP   17h
 {{< /text >}}
 
-If the `EXTERNAL-IP` value is set, your environment has an external load balancer that you can use for the ingress gateway.
-If the `EXTERNAL-IP` value is `<none>` (or perpetually `<pending>`), your environment does not provide an external load balancer for the ingress gateway.
-In this case, you can access the gateway using the service's [node port](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport).
+`EXTERNAL-IP` 값이 설정되어 있으면, 그 환경은 External load balancer를 지원하므로 Ingress gateway에 매핑시킬 수 있습니다..
+`EXTERNAL-IP` 값이 `<none>` 이라면 (혹은 `<pending>`), Ingress Gateway에 External load balancer를 사용할 수 없습니다..
+이럴 경우, service의 [node port](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport)모드를 사용하여 배포할 수 있습니다.
 
-Choose the instructions corresponding to your environment:
+환경에 맞는 방법을 선택하세요 :
 
-**Follow these instructions if you have determined that your environment has an external load balancer.**
+**External load balancer를 지원하는 환경이라면 아래 방법을 따릅니다.**
 
-Set the ingress IP and ports:
+Ingress IP 와 port 를 지정합니다. :
 
 {{< text bash >}}
 $ export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -253,10 +233,10 @@ $ export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingress
 {{< /text >}}
 
 {{< warning >}}
-In certain environments, the load balancer may be exposed using a host name, instead of an IP address.
-In this case, the ingress gateway's `EXTERNAL-IP` value will not be an IP address,
-but rather a host name, and the above command will have failed to set the `INGRESS_HOST` environment variable.
-Use the following command to correct the `INGRESS_HOST` value:
+몇몇 환경에서 Load balancer는 IP 주소 대신 호스트 이름을 사용하여 노출될 수 있습니다.
+이 경우 Ingress gateway의 `EXTERNAL-IP` 값은 IP 주소가 아니라 호스트 이름이며, 
+위의 명령은 `INGRESS_HOST` 환경 변수 설정에 실패 합니다.
+아래 명령을 사용하여 `INGRESS_HOST` 값을 설정 합니다. :
 
 {{< text bash >}}
 $ export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
@@ -264,9 +244,9 @@ $ export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway
 
 {{< /warning >}}
 
-**Follow these instructions if your environment does not have an external load balancer and choose a node port instead.**
+**External load balancer를 지원하지 않는 환경의 경우 아래 방법을 사용하고 node port 서비스를 사용합니다.**
 
-Set the ingress ports:
+Ingress IP 와 port 를 지정합니다. :
 
 {{< text bash >}}
 $ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
@@ -279,8 +259,7 @@ _GKE:_
 $ export INGRESS_HOST=workerNodeAddress
 {{< /text >}}
 
-You need to create firewall rules to allow the TCP traffic to the `ingressgateway` service's ports.
-Run the following commands to allow the traffic for the HTTP port, the secure port (HTTPS) or both:
+`Ingressgateway` 서비스의 포트에 대한 TCP 트래픽을 허용하려면 방화벽 규칙을 만들어야합니다. 다음 명령을 실행하여 HTTP 포트, 보안 포트 (HTTPS) 또는 둘 모두에 대한 트래픽을 허용합니다. :
 
 {{< text bash >}}
 $ gcloud compute firewall-rules create allow-gateway-http --allow "tcp:$INGRESS_PORT"
@@ -310,13 +289,13 @@ $ export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -
 
 {{< /tabset >}}
 
-1.  Set `GATEWAY_URL`:
+1.  `GATEWAY_URL` 설정:
 
     {{< text bash >}}
     $ export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
     {{< /text >}}
 
-1.  Ensure an IP address and port were successfully assigned to the environment variable:
+1.  IP 주소와 Port 가 정확하게 매핑됐는지 확인합니다. :
 
     {{< text bash >}}
     $ echo "$GATEWAY_URL"
@@ -325,51 +304,51 @@ $ export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -
 
 ### Verify external access {#confirm}
 
-Confirm that the Bookinfo application is accessible from outside
-by viewing the Bookinfo product page using a browser.
+브라우저를 사용하여 Bookinfo 페이지에 접속하여 외부에서 Bookinfo 애플리케이션에 접근이 가능한지 확인합니다.
 
-1.  Run the following command to retrieve the external address of the Bookinfo application.
+1.  아래 명령을 실행하여 Bookinfo 페이지의 주소를 확인합니다.
 
     {{< text bash >}}
     $ echo http://"$GATEWAY_URL/productpage"
     {{< /text >}}
 
-1.  Paste the output from the previous command into your web browser and confirm that the Bookinfo product page is displayed.
+1.  위의 주소를 복사하여 브라우저의 주소창에 붙여넣고 페이지로 이동합니다. 외부에서 접속이 가능하면 페이지가 열립니다.
 
 ## View the dashboard {#dashboard}
 
-Istio integrates with [several](/docs/ops/integrations) different telemetry applications. These can help you gain
-an understanding of the structure of your service mesh, display the topology of the mesh, and analyze the health of your mesh.
+Istio `demo` 설치로 설치된 [몇 가지](/docs/ops/integrations) 대시보드가 있습니다. 
+Kiali 대시 보드는 토폴로지를 표시하고 메시 상태를 표시하여 Service mesh 구조를 이해하는 데 도움이됩니다.
 
-Use the following instructions to deploy the [Kiali](/docs/ops/integrations/kiali/) dashboard, along with [Prometheus](/docs/ops/integrations/prometheus/), [Grafana](/docs/ops/integrations/grafana), and [Jaeger](/docs/ops/integrations/jaeger/).
-
-1.  Install Kiali and wait for it to be deployed.
-
-    {{< text bash >}}
-    $ kubectl apply -f @samples/addons@
-    $ while ! kubectl wait --for=condition=available --timeout=600s deployment/kiali -n istio-system; do sleep 1; done
-    {{< /text >}}
-
-1.  Access the Kiali dashboard.
+1.  Kiali 대시보드에 접속합니다. 기본 사용자 이름과 비밀번호는 모두 `admin` 입니다.
 
     {{< text bash >}}
     $ istioctl dashboard kiali
     {{< /text >}}
 
-1.  In the left navigation menu, select _Graph_ and in the _Namespace_ drop down, select _default_.
+1.  기본적으로 localhost로 실행되며 초기 ID/PW 는 모두 `admin` 입니다.
 
-    The Kiali dashboard shows an overview of your mesh with the relationships
-    between the services in the `Bookinfo` sample application. It also provides
-    filters to visualize the traffic flow.
+    {{< text bash >}}
+    $ istioctl dashboard kiali
+    {{< /text >}}
+
+1.  외부 서비스로 실행시키려면 아래 Flag를 사용하여 대시보드를 실행할 수 있습니다.
+
+    {{< text bash >}}
+    $ istioctl dashboard kiali --address (your-ip) -p (your-port)
+    {{< /text >}}
+
+1.  왼쪽 네비게이션 메뉴에서 _Graph_ 를 선택하고 _Namespace_ drop down 메뉴에서 _default_ 를 선택합니다.
+
+    Kiali 대시보드는 `Bookinfo` 예제 애플리케이션의 서비스 간 관계와 함께 mesh에 대한 개요를 보여줍니다. 
+    트래픽 흐름을 시각화하는 필터도 제공합니다.
 
     {{< image link="./kiali-example2.png" caption="Kiali Dashboard" >}}
 
 ## Next steps
 
-Congratulations on completing the evaluation installation!
+여기까지 완료한 것을 축하합니다!
 
-These tasks are a great place for beginners to further evaluate Istio's
-features using this `demo` installation:
+아래 작업들은 Istio를 처음 접하는 사용자들이 `demo` 를 사용하여 Istio의 특징을 더 자세히 파악하기에 좋습니다. :
 
 - [Request routing](/docs/tasks/traffic-management/request-routing/)
 - [Fault injection](/docs/tasks/traffic-management/fault-injection/)
@@ -380,7 +359,7 @@ features using this `demo` installation:
 - [Accessing external services](/docs/tasks/traffic-management/egress/egress-control/)
 - [Visualizing your mesh](/docs/tasks/observability/kiali/)
 
-Before you customize Istio for production use, see these resources:
+사용자 정의 Istio를 프러덕션에 적용하기 전 아래 내용을 참고하세요. :
 
 - [Deployment models](/docs/ops/deployment/deployment-models/)
 - [Deployment best practices](/docs/ops/best-practices/deployment/)
